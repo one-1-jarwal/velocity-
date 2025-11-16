@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Velocity - Personal AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.29.1"
+  }
+}
+</script>
+    <style>
+      :root {
+        --pulse-scale: 1;
+        --pulse-opacity: 1;
+      }
+
+      /* --- ANIMATION KEYFRAMES --- */
+      @keyframes background-pan {
+        0% { background-position: 0% 0%; }
+        100% { background-position: 20% 20%; }
+      }
+      @keyframes scanline-y {
+        0% { transform: translateY(-100%); }
+        100% { transform: translateY(100%); }
+      }
+      
+      /* Refined animation for header entry */
+      @keyframes header-in {
+        from { transform: translateY(-1.5rem); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+      }
+
+      /* Refined animation for messages, previews, etc. */
+      @keyframes item-in {
+        from { opacity: 0; transform: translateY(1rem) scale(0.97); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+      
+      /* Refined animation for modals */
+      @keyframes modal-in {
+        from { opacity: 0; transform: scale(0.95); }
+        to { opacity: 1; transform: scale(1); }
+      }
+      
+      /* Animation for Browser View */
+      @keyframes browser-in {
+        from { opacity: 0; transform: translateY(2rem) scale(0.95); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+      }
+
+
+      /* --- BASE STYLES --- */
+      body {
+        font-family: 'Rajdhani', sans-serif;
+        background-color: #02040a;
+        background-image: url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCI+CjxyZWN0IHdpZHRoPSIyMCIgaGVpZ2h0PSIyMCIgZmlsbD0ibm9uZSIvPgo8cGF0aCBkPSJNMCAxMEgwME0xMCAwVjAiIHN0cm9rZT0icmdiYSgwLCA4MCwgMTIwLCAwLjEpIiBmaWxsPSJub25lIi8+Cjwvc3ZnPg==');
+        animation: background-pan 60s linear infinite;
+        position: relative;
+        z-index: 0;
+      }
+      
+      body::before, body::after, body::selection {
+        content: '';
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        transition: transform 0.8s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+      }
+      
+      body::before {
+        background: radial-gradient(circle at top left, rgba(0, 170, 255, 0.12), transparent 35%),
+                    url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI1NiIgaGVpZ2h0PSIxMDAiPgo8cmVjdCB3aWR0aD0iNTYiIGhlaWdodD0iMTAwIiBmaWxsPSJub25lIj48L3JlY3Q+CjxwYXRoIGQ9Ik0yOCA2NkwwIDUwTDAgMTZMMjggMEw1NiAxNkw1NiA1MEwyOCA2NkwyOCAxMDAmIiBmaWxsPSJub25lIiBzdHJva2U9InJnYmEoMCwgODAsIDEyMCwgMC4wNSkiIHN0cm9rZS13aWR0aD0iMSI+PC9wYXRoPgo8L3N2Zz4=');
+        transform-origin: top left;
+        transform: scale(var(--pulse-scale));
+        opacity: var(--pulse-opacity);
+      }
+
+      body::after {
+        background: radial-gradient(circle at bottom right, rgba(0, 255, 255, 0.1), transparent 40%);
+        transform-origin: bottom right;
+        transform: scale(var(--pulse-scale));
+        opacity: var(--pulse-opacity);
+      }
+
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #02040a;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: linear-gradient(to bottom, #00aaff, #00ffff);
+        border-radius: 4px;
+        border: 2px solid #02040a;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(to bottom, #11bbff, #11ffff);
+      }
+
+      /* --- BROWSER VIEW STYLES --- */
+      .browser-btn {
+        @apply w-7 h-7 flex items-center justify-center rounded-full bg-black/20 text-gray-400 border border-white/10 transition-all duration-200 active:scale-90 hover:text-white hover:border-cyan-400/50 hover:bg-cyan-500/10;
+      }
+
+      /* --- ANIMATION UTILITY CLASSES --- */
+      .animate-header-in {
+        animation: header-in 0.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      }
+      .animate-item-in {
+        animation: item-in 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      }
+      .animate-modal-in {
+        animation: modal-in 0.2s ease-out forwards;
+      }
+      .animate-browser-in {
+        animation: browser-in 0.4s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+      }
+      .animate-scanline-y {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+        background: linear-gradient(to bottom, transparent 0%, rgba(0, 255, 255, 0.2) 50%, transparent 100%);
+        animation: scanline-y 10s linear infinite;
+        opacity: 0.3;
+        pointer-events: none;
+      }
+    </style>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-[#02040a] text-gray-200 font-sans">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>

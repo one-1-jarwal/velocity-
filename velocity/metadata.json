@@ -1,0 +1,7 @@
+{
+  "name": "Velocity",
+  "description": "Velocity: Your personal, intelligent assistant. Experience a sophisticated, real-time chat interface for all your queries.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
